@@ -3,6 +3,9 @@ package Main;
 import IO.JsonFileWriter;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import BitsAndBucks.*;
+import requests.Request;
+
+import java.net.http.HttpResponse;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -13,6 +16,12 @@ public class Main implements Data {
 
     public static void main(String[] args) {
         homePage();
+        //String URL = "https://api.freecurrencyapi.com/v1/latest?apikey=fca_live_8ekGcWMBDn4DcbipBC7NiBTp8m7M8diBD0PDmh8T&base_currency=USD";
+
+//        String BASE_CODE = "JOD";
+//        String URL = "https://open.er-api.com/v6/latest/"+BASE_CODE;
+//        HttpResponse<String> req = new Request(URL ,"GET").send();
+//        System.out.println(Request.convertToJson(req.body()).get("rates").toPrettyString());
     }
 
     public static void waitFor(int seconds) {
@@ -99,49 +108,60 @@ public class Main implements Data {
 
     public static double convertAmount(String stringAmount) {
         stringAmount = stringAmount.toUpperCase();
-        try {
-            if (stringAmount.startsWith("JOD")) {
-                return Double.parseDouble(stringAmount.split("JOD")[1]);
-            }
-            else if (stringAmount.startsWith("USD")) {
-                double amount = Double.parseDouble(stringAmount.split("USD")[1]);
-                return FinancialCurrencies.convertToJOD(amount, "USD");
-            }
-            else if (stringAmount.startsWith("EUR")) {
-                double amount = Double.parseDouble(stringAmount.split("EUR")[1]);
-                return FinancialCurrencies.convertToJOD(amount, "EUR");
-            }
-            else if (stringAmount.startsWith("KWD")) {
-                double amount = Double.parseDouble(stringAmount.split("KWD")[1]);
-                return FinancialCurrencies.convertToJOD(amount, "KWD");
-            }
-            else if (stringAmount.startsWith("SAR")) {
-                double amount = Double.parseDouble(stringAmount.split("SAR")[1]);
-                return FinancialCurrencies.convertToJOD(amount, "SAR");
-            }
-            else if (stringAmount.startsWith("GBP")) {
-                double amount = Double.parseDouble(stringAmount.split("GBP")[1]);
-                return FinancialCurrencies.convertToJOD(amount, "GBP");
-            }
-            else {
-                try {
-                    return Double.parseDouble(stringAmount);
-                } catch (Exception e) {
-                    return -1;
-                }
-            }
-        }
-        catch (Exception e) {
-            return -1;
-        }
+        String currency = stringAmount.substring(0, 3);
+        double amount = Double.parseDouble(stringAmount.split(currency)[1].strip());
+        //System.out.println(amount);
+//        try {
+//            if (stringAmount.startsWith("JOD")) {
+//                return Double.parseDouble(stringAmount.split("JOD")[1]);
+//            }
+//            else if (stringAmount.startsWith("USD")) {
+//                double amount = Double.parseDouble(stringAmount.split("USD")[1]);
+//                return FinancialCurrencies.convertToJOD(amount, "USD");
+//            }
+//            else if (stringAmount.startsWith("EUR")) {
+//                double amount = Double.parseDouble(stringAmount.split("EUR")[1]);
+//                return FinancialCurrencies.convertToJOD(amount, "EUR");
+//            }
+//            else if (stringAmount.startsWith("KWD")) {
+//                double amount = Double.parseDouble(stringAmount.split("KWD")[1]);
+//                return FinancialCurrencies.convertToJOD(amount, "KWD");
+//            }
+//            else if (stringAmount.startsWith("SAR")) {
+//                double amount = Double.parseDouble(stringAmount.split("SAR")[1]);
+//                return FinancialCurrencies.convertToJOD(amount, "SAR");
+//            }
+//            else if (stringAmount.startsWith("GBP")) {
+//                double amount = Double.parseDouble(stringAmount.split("GBP")[1]);
+//                return FinancialCurrencies.convertToJOD(amount, "GBP");
+//            }
+//            else {
+//                try {
+//                    return Double.parseDouble(stringAmount);
+//                } catch (Exception e) {
+//                    return -1;
+//                }
+//            }
+//        }
+//        catch (Exception e) {
+//            return -1;
+//        }
+        return FinancialCurrencies.convert(amount, currency, "JOD");
     }
 
     public static double getAmount() {
         String stringAmount;
         double amount;
+
         while (true) {
             System.out.println("Enter amount: ");
-            stringAmount = input.nextLine();
+            stringAmount = input.nextLine().strip();
+            try {
+                return Double.parseDouble(stringAmount);
+            }
+            catch (NumberFormatException e) {
+
+            }
             amount = convertAmount(stringAmount);
             if (amount<0) { // ==-1 or < 0
                 System.out.println("Invalid amount!");

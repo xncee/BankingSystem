@@ -1,5 +1,9 @@
 package BitsAndBucks;
 
+import requests.Request;
+
+import java.net.http.HttpResponse;
+
 public class FinancialCurrencies {
     public static double convertToJOD(double amount, String currency) {
         double exchangeRate;
@@ -25,5 +29,19 @@ public class FinancialCurrencies {
         }
 
         return amount * exchangeRate;
+    }
+    public static double convert(double amount, String BASE_CODE, String to) {
+        BASE_CODE = BASE_CODE.toUpperCase();
+        String URL = "https://open.er-api.com/v6/latest/"+BASE_CODE;
+        HttpResponse<String> req = new Request(URL ,"GET").send();
+        double result;
+        try {
+            result = Double.parseDouble(String.valueOf(Request.convertToJson(req.body()).get("rates").get(to)));
+        }
+        catch (Exception e) {
+            return -1;
+        }
+        //System.out.println(result);
+        return amount*result;
     }
 }
